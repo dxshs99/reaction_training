@@ -10,11 +10,16 @@ COLOR_MAPPING = {
 
 CONFIG = {
     'caption': 'Reaction Training',
-    'window_width': 800,
-    'window_height': 600,
+    'window_width': 1000,
+    'window_height': 800,
     'time_interval': 500,
     'color_training': [COLOR_MAPPING['green'],
                        COLOR_MAPPING['red'],
                        COLOR_MAPPING['blue'],
                        COLOR_MAPPING['yellow']],
+    'button_edge_value': 25,
+    'button_width': 150,
+    'button_height': 50,
+    'button_font_size': 30,
+
 }

@@ -1,3 +1,3 @@
 import subprocess
 
-subprocess.run([r'src/reaction.py'])
+subprocess.run(['python', 'src/reaction.py'])

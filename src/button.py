@@ -5,7 +5,7 @@ from pygame import Surface
 from pathlib import Path
 from typing import Type
 sys.path.insert(1, os.path.abspath(Path(__file__).resolve().parents[1]))
-from config.config import COLOR_MAPPING
+from config.config import COLOR_MAPPING, CONFIG
 
 pygame.init()
 
@@ -30,10 +30,10 @@ class Button():
         self.center_left = center_left
         self.center_top = center_top
 
-        self.width, self.height = 150, 50
+        self.width, self.height = CONFIG['button_width'], CONFIG['button_height']
         self.button_color = COLOR_MAPPING['grey']
         self.text_color = COLOR_MAPPING['white']
-        self.font = pygame.font.SysFont(None, 30)
+        self.font = pygame.font.SysFont(None, CONFIG['button_font_size'])
 
         self.rect = pygame.Rect(center_left - self.width // 2, center_top - self.height // 2, self.width, self.height)
 
@@ -47,3 +47,11 @@ class Button():
     def draw_button(self):
         self.window.fill(self.button_color, self.rect)
         self.window.blit(self.msg_image, self.msg_image_rect)
+
+
+def get_button_center_position(
+        window_width: float,
+        center_top: float,
+) -> list:
+    center_left = window_width - CONFIG['button_edge_value'] - CONFIG['button_width'] // 2
+    return [center_left, center_top]

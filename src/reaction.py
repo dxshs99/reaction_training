@@ -2,9 +2,7 @@ import sys
 import os
 import pygame
 import random
-from pygame import Surface
 from pathlib import Path
-from typing import Type
 sys.path.insert(1, os.path.abspath(Path(__file__).resolve().parents[1]))
 from src.button import Button
 from config.config import COLOR_MAPPING, CONFIG
@@ -17,22 +15,35 @@ class Reaction:
         
         self.window_width = CONFIG['window_width']
         self.window_height = CONFIG['window_height']
-        self.window = pygame.display.set_mode((self.window_width, self.window_height))
+        self.size = (self.window_width, self.window_height)
+        self.window = pygame.display.set_mode((self.window_width, self.window_height),pygame.RESIZABLE)
         pygame.display.set_caption(CONFIG['caption'])
+        icon = pygame.image.load(r'images/logo.png').convert_alpha()
+        pygame.display.set_icon(icon)
 
         self.game_state = 'start_menu'
         self.running = True
         self.color_training = CONFIG['color_training']
+        self.full_screen = False
 
+        self.get_button_position()
         self.set_timer_event()
         self.select_color(self.color_training)
 
+    def get_button_position(self):
+        self.button_center_left = self.window_width - CONFIG['button_edge_value'] - CONFIG['button_width'] // 2
+        
+        self.start_center_top = CONFIG['button_edge_value'] + CONFIG['button_height'] // 2
+        self.pause_center_top = self.start_center_top + CONFIG['button_edge_value'] + CONFIG['button_height']
+        self.settings_center_top =  self.window_height - self.pause_center_top
+        self.exit_center_top = self.window_height - self.start_center_top
+
     def draw_start_menu(self):
         self.window.fill(COLOR_MAPPING['white'])
-        Button(self.window, 'Start', 700, 50)
-        Button(self.window, 'Pause', 700, 125)
-        Button(self.window, 'Settings', 700, 475)
-        Button(self.window, 'Exit', 700, 550)
+        Button(self.window, 'Start', self.button_center_left, self.start_center_top)
+        Button(self.window, 'Pause', self.button_center_left, self.pause_center_top)
+        Button(self.window, 'Settings', self.button_center_left, self.settings_center_top)
+        Button(self.window, 'Exit', self.button_center_left, self.exit_center_top)
         pygame.display.flip()
 
     def set_timer_event(self):
@@ -53,37 +64,50 @@ class Reaction:
                 
                 if self.game_state == 'start' and event.type == self.timer_event:
                     self.select_color(self.next_aval_color)
+                
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    mouse_pos = pygame.mouse.get_pos()
+                    pos0_range = [self.button_center_left - CONFIG['button_width'] // 2, self.button_center_left + CONFIG['button_width'] // 2]
+                    start_pos1_range = [self.start_center_top - CONFIG['button_height'] // 2, self.start_center_top + CONFIG['button_height'] // 2]
+                    pause_pos1_range = [self.pause_center_top - CONFIG['button_height'] // 2, self.pause_center_top + CONFIG['button_height'] // 2]
+                    exit_pos1_range = [self.exit_center_top - CONFIG['button_height'] // 2, self.exit_center_top + CONFIG['button_height'] // 2]
+
+                    if pos0_range[0] <= mouse_pos[0] <= pos0_range[1] and start_pos1_range[0] <= mouse_pos[1] <= start_pos1_range[1]:
+                        self.game_state = 'start'
+                    elif pos0_range[0] <= mouse_pos[0] <= pos0_range[1] and pause_pos1_range[0] <= mouse_pos[1] <= pause_pos1_range[1]:
+                        self.game_state = 'pause'
+                    elif pos0_range[0] <= mouse_pos[0] <= pos0_range[1] and exit_pos1_range[0] <= mouse_pos[1] <= exit_pos1_range[1]:
+                        self.running = False
+                
+                if event.type == pygame.KEYDOWN:
+                    keys = pygame.key.get_pressed()
+                    if keys[pygame.K_SPACE]:
+                        if self.game_state == 'start':
+                            self.game_state = 'pause'
+                        elif self.game_state == 'pause' or self.game_state == 'start_menu':
+                            self.game_state = 'start'
+                    if keys[pygame.K_f]:
+                        self.window = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+                        pygame.display.update()
+
+                    if keys[pygame.K_ESCAPE]:
+                        self.window = pygame.display.set_mode(self.size)
+                        pygame.display.update()
+
+                if event.type == pygame.VIDEORESIZE:
+                    self.window_width, self.window_height = event.w, event.h
+                    self.window = pygame.display.set_mode((self.window_width, self.window_height),pygame.RESIZABLE)
+                    self.get_button_position()
+                    self.draw_start_menu()
+
 
             if self.game_state == 'start_menu':
                 self.draw_start_menu()
             
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                mouse_pos = pygame.mouse.get_pos()
-                if 625 <= mouse_pos[0] <= 775 and 25 <= mouse_pos[1] <= 75:
-                    self.game_state = 'start'
-            
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                mouse_pos = pygame.mouse.get_pos()
-                if 625 <= mouse_pos[0] <= 775 and 100 <= mouse_pos[1] <= 150:
-                    self.game_state = 'pause'
-
             if self.game_state == 'start':
-                keys = pygame.key.get_pressed()
-                if keys[pygame.K_SPACE]:
-                    self.game_state = 'pause'
-
-            if self.game_state == 'start_menu' or self.game_state == 'pause':
-                keys = pygame.key.get_pressed()
-                if keys[pygame.K_SPACE]:
-                    self.game_state = 'start'
-
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                mouse_pos = pygame.mouse.get_pos()
-                if 625 <= mouse_pos[0] <= 775 and 525 <= mouse_pos[1] <= 575:
-                    self.running = False
-
-            if self.game_state == 'start':
-                prac_rect = pygame.Rect(0, 0, 600, 600)
+                prac_width = self.window_width - CONFIG['button_edge_value'] * 2 - CONFIG['button_width']
+                prac_height = self.window_height
+                prac_rect = pygame.Rect(0, 0, prac_width, prac_height)
                 pygame.draw.rect(self.window, self.curr_color, prac_rect)
                 pygame.display.flip()
 
