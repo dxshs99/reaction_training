@@ -13,6 +13,8 @@ CONFIG = {
     'window_width': 1000,
     'window_height': 800,
     'time_interval': 500,
+    'time_interval_max': 2000,
+    'time_interval_sensitivity': 50,
     'color_training': [COLOR_MAPPING['green'],
                        COLOR_MAPPING['red'],
                        COLOR_MAPPING['blue'],
