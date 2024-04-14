@@ -6,6 +6,7 @@ COLOR_MAPPING = {
     'black': (255, 255, 255),
     'grey': (232, 232, 232),
     'white': (0, 0, 0),
+    'light_yellow': (251, 243, 183)
 }
 
 CONFIG = {

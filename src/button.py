@@ -16,6 +16,7 @@ class Button():
             text: str,
             center_left: float,
             center_top: float,
+            select_status: bool = False,
     ) -> None:
         """Initate
 
@@ -29,9 +30,14 @@ class Button():
         self.text = text
         self.center_left = center_left
         self.center_top = center_top
+        self.select_status = select_status
 
         self.width, self.height = CONFIG['button_width'], CONFIG['button_height']
-        self.button_color = COLOR_MAPPING['grey']
+
+        if self.select_status is True:
+            self.button_color = COLOR_MAPPING['light_yellow']
+        else:
+            self.button_color = COLOR_MAPPING['grey']
         self.text_color = COLOR_MAPPING['white']
         self.font = pygame.font.SysFont(None, CONFIG['button_font_size'])
 
